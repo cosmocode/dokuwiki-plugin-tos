@@ -6,5 +6,5 @@
  */
 
 // keys need to match the config setting name
-// $lang['fixme'] = 'FIXME';
+$lang['tos'] = 'The page with the TOS. Make sure it\'s visible to anonymous users.';
 

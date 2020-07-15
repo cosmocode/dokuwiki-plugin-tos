@@ -5,5 +5,5 @@
  * @author Andreas Gohr <dokuwiki@cosmocode.de>
  */
 
-//$conf['fixme']    = 'FIXME';
+$conf['tos']    = 'tos';
 

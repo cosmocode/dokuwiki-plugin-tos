@@ -5,9 +5,8 @@
  * @author Andreas Gohr <dokuwiki@cosmocode.de>
  */
 
-// menu entry for admin plugins
-// $lang['menu'] = 'Your menu entry';
 
 // custom language strings for the plugin
-// $lang['fixme'] = 'FIXME';
+$lang['acceptneeded'] = 'You need to accept the Terms of Service before you can login';
+$lang['accept'] = 'I\'ve read and accept the Terms of Servive';
 
