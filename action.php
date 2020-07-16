@@ -16,50 +16,84 @@ class action_plugin_tos extends DokuWiki_Action_Plugin
      */
     public function register(Doku_Event_Handler $controller)
     {
-        $controller->register_hook('AUTH_LOGIN_CHECK', 'AFTER', $this, 'handleLogin');
-        $controller->register_hook('HTML_LOGINFORM_OUTPUT', 'BEFORE', $this, 'handleLoginForm');
+        #$controller->register_hook('AUTH_LOGIN_CHECK', 'AFTER', $this, 'handleLogin');
+        #$controller->register_hook('HTML_LOGINFORM_OUTPUT', 'BEFORE', $this, 'handleLoginForm');
 
+        $controller->register_hook('ACTION_ACT_PREPROCESS', 'BEFORE', $this, 'checkTosAccept');
+        $controller->register_hook('TPL_ACT_UNKNOWN', 'BEFORE', $this, 'showTos');
     }
 
     /**
-     * Handle the login action
-     *
      * Check if the TOCs have been accepted and update the state if needed
      *
      * @param Doku_Event $event event object by reference
      * @param mixed $param
      * @return void
      */
-    public function handleLogin(Doku_Event $event, $param)
+    public function checkTosAccept(Doku_Event $event, $param)
     {
         global $INPUT;
-        if (!$event->result) return; // login failed anyway
+        $user = $INPUT->server->str('REMOTE_USER');
+        if ($user === '') return;
+        $act = act_clean($event->data);
+        if ($act === 'logout') return;
+        // FIXME skip for admins and superusers
 
+        // if user accepted the TOCs right now, no further checks needed
         if ($INPUT->bool(self::FORMFIELD)) {
-            // user accepted the TOCs right now, no further checks needed
-            $this->userTosState($event->data['user'], true);
+            $this->userTosState($user, true);
             return;
         }
 
         // ensure newest TOCs have been accepted before
         $newest = $this->newestTOS();
         if (!$newest) return; // we don't have a valid TOS, yet
-        $accepted = $this->userTosState($event->data['user']);
+        $accepted = $this->userTosState($user);
+        if ($accepted >= $newest) return;
 
-        // fail the login when toc not accepted
-        if ($accepted < $newest) {
-            msg($this->getLang('acceptneeded'), -1);
-            $event->result = false;
-            auth_logoff();
-            return;
-        }
+        $event->data = 'plugin_tos';
     }
 
-    public function handleLoginForm(Doku_Event $event, $param)
+    /**
+     * Display the TOS and ask to accept
+     *
+     * @param Doku_Event $event event object by reference
+     * @param mixed $param
+     * @return void
+     */
+    public function showTos(Doku_Event $event, $param)
     {
-        /** @var Doku_Form $form */
-        $form = $event->data;
-        $form->insertElement(3, form_checkboxfield(['name' => self::FORMFIELD,'_class'=>'block', '_text' => $this->getLang('accept')]));
+        global $ID;
+        global $INPUT;
+
+        if ($event->data !== 'plugin_tos') return;
+        $event->preventDefault();
+
+
+        echo '<div class="plugin-tos">';
+        echo $this->locale_xhtml('intro');
+
+        $accepted = $this->userTosState($INPUT->server->str('REMOTE_USER'));
+        if($accepted) {
+            echo '<label for="plugin__tos_showdiff">';
+            echo sprintf($this->getLang('showdiff'), dformat($accepted, '%f'));
+            echo '</label>';
+            echo '<input type="checkbox" id="plugin__tos_showdiff">';
+            echo $this->diffTos($accepted);
+        }
+
+        echo '<div class="tos-content">';
+        echo p_wiki_xhtml($this->getConf('tos'));
+        echo '</div>';
+
+        echo '<ul class="tos-form">';
+        echo '<li class="tos-nope"><a href="' . wl($ID,
+                ['do' => 'logout']) . '">' . $this->getLang('nope') . '</a></li>';
+        echo '<li class="tos-accept"><a href="' . wl($ID,
+                [self::FORMFIELD => '1']) . '">' . $this->getLang('accept') . '</a></li>';
+        echo '</ul>';
+
+        echo '</div>';
     }
 
     /**
@@ -98,10 +132,35 @@ class action_plugin_tos extends DokuWiki_Action_Plugin
 
         if ($accept) {
             io_makeFileDir($tosfile);
-            touch($tosfile);
+            io_saveFile($tosfile, $user);
         }
 
         return (int)@filemtime($tosfile);
     }
+
+    /**
+     * Create a inline diff of changes since the last accept
+     *
+     * @param int $lastaccept when the TOS was last accepted
+     * @return string
+     */
+    protected function diffTos($lastaccept) {
+        $change = new \dokuwiki\ChangeLog\PageChangeLog($this->getConf('tos'));
+        $oldrev = $change->getLastRevisionAt($lastaccept);
+        $old = rawWiki($this->getConf('tos'), $oldrev);
+        $new = rawWiki($this->getConf('tos'));
+        $diff = new Diff(explode("\n", $old), explode("\n", $new));
+        $formatter = new InlineDiffFormatter();
+
+        $html  = '<div class="table tos-diff">';
+        $html  .= '<table class="diff diff_inline">';
+        $html .= html_insert_softbreaks($formatter->format($diff));
+        $html .= '</table>';
+        $html .= '</div>';
+
+        return $html;
+    }
+
+
 }
 

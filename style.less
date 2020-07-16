@@ -1,0 +1,52 @@
+.plugin-tos {
+    .tos-diff,
+    .tos-content {
+        border: 1px solid @ini_border;
+        padding: 1em;
+    }
+
+    label {
+        color: @ini_link;
+    }
+
+    // this checkbox controls if the diff or the content shall be shown
+    #plugin__tos_showdiff {
+        display: none;
+    }
+
+    .tos-diff {
+        display: none;
+    }
+
+    #plugin__tos_showdiff:checked + .tos-diff {
+        display: block;
+    }
+
+    #plugin__tos_showdiff:checked + .tos-diff + .tos-content {
+        display: none;
+    }
+
+    ul {
+        list-style-type: none;
+        font-size: 150%;
+        display: flex;
+        justify-content: flex-end;
+        margin: 0;
+        padding: 0;
+
+        li {
+            padding: 2em;
+        }
+
+        li.tos-accept:before {
+            content: '✓';
+            color: @ini_text;
+            padding-right: 0.5em;
+        }
+        li.tos-nope:before {
+            content: '✗';
+            color: @ini_text;
+            padding-right: 0.5em;
+        }
+    }
+}
