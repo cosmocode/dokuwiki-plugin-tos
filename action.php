@@ -107,7 +107,7 @@ class action_plugin_tos extends DokuWiki_Action_Plugin
         $changes = new \dokuwiki\ChangeLog\PageChangeLog($this->getConf('tos'));
         if (!$changes->hasRevisions()) return 0;
 
-        $start = 0;
+        $start = -1; // also check current revision
         while ($revisions = $changes->getRevisions($start, 25)) {
             $start += count($revisions);
             foreach ($revisions as $rev) {
