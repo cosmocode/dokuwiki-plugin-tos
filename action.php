@@ -33,11 +33,12 @@ class action_plugin_tos extends DokuWiki_Action_Plugin
     public function checkTosAccept(Doku_Event $event, $param)
     {
         global $INPUT;
+        global $INFO;
         $user = $INPUT->server->str('REMOTE_USER');
         if ($user === '') return;
         $act = act_clean($event->data);
         if ($act === 'logout') return;
-        // FIXME skip for admins and superusers
+        if ($INFO['ismanager']) return;
 
         // if user accepted the TOCs right now, no further checks needed
         if ($INPUT->bool(self::FORMFIELD)) {
@@ -69,12 +70,11 @@ class action_plugin_tos extends DokuWiki_Action_Plugin
         if ($event->data !== 'plugin_tos') return;
         $event->preventDefault();
 
-
         echo '<div class="plugin-tos">';
         echo $this->locale_xhtml('intro');
 
         $accepted = $this->userTosState($INPUT->server->str('REMOTE_USER'));
-        if($accepted) {
+        if ($accepted) {
             echo '<label for="plugin__tos_showdiff">';
             echo sprintf($this->getLang('showdiff'), dformat($accepted, '%f'));
             echo '</label>';
@@ -144,7 +144,8 @@ class action_plugin_tos extends DokuWiki_Action_Plugin
      * @param int $lastaccept when the TOS was last accepted
      * @return string
      */
-    protected function diffTos($lastaccept) {
+    protected function diffTos($lastaccept)
+    {
         $change = new \dokuwiki\ChangeLog\PageChangeLog($this->getConf('tos'));
         $oldrev = $change->getLastRevisionAt($lastaccept);
         $old = rawWiki($this->getConf('tos'), $oldrev);
@@ -152,15 +153,14 @@ class action_plugin_tos extends DokuWiki_Action_Plugin
         $diff = new Diff(explode("\n", $old), explode("\n", $new));
         $formatter = new InlineDiffFormatter();
 
-        $html  = '<div class="table tos-diff">';
-        $html  .= '<table class="diff diff_inline">';
+        $html = '<div class="table tos-diff">';
+        $html .= '<table class="diff diff_inline">';
         $html .= html_insert_softbreaks($formatter->format($diff));
         $html .= '</table>';
         $html .= '</div>';
 
         return $html;
     }
-
 
 }
 
