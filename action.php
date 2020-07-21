@@ -104,6 +104,9 @@ class action_plugin_tos extends DokuWiki_Action_Plugin
      */
     protected function newestTOS()
     {
+        $state = $this->sessionState();
+        if ($state) return $state;
+
         $changes = new \dokuwiki\ChangeLog\PageChangeLog($this->getConf('tos'));
         if (!$changes->hasRevisions()) return 0;
 
@@ -112,7 +115,9 @@ class action_plugin_tos extends DokuWiki_Action_Plugin
             $start += count($revisions);
             foreach ($revisions as $rev) {
                 $info = $changes->getRevisionInfo($rev);
-                if ($info['type'] === 'E' || $info['type'] === 'C') return $rev;
+                if ($info['type'] === 'E' || $info['type'] === 'C') {
+                    return $this->sessionState($rev);
+                }
             }
         }
 
@@ -136,6 +141,28 @@ class action_plugin_tos extends DokuWiki_Action_Plugin
         }
 
         return (int)@filemtime($tosfile);
+    }
+
+    /**
+     * Read or write the current TOS time to the session
+     *
+     * @param int $set
+     * @return int 0 when no info is available
+     */
+    protected function sessionState($set = 0)
+    {
+        if (!$this->getConf('usesession')) return 0;
+
+        if ($set) {
+            session_start();
+            $_SESSION[self::FORMFIELD] = $set;
+            session_write_close();
+        }
+
+        if (isset($_SESSION[self::FORMFIELD])) {
+            return $_SESSION[self::FORMFIELD];
+        }
+        return 0;
     }
 
     /**

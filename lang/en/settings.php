@@ -7,4 +7,5 @@
 
 // keys need to match the config setting name
 $lang['tos'] = 'The page with the TOS. Make sure it\'s visible to anonymous users.';
+$lang['usesession'] = 'Save info about the latest TOS revision in the user session? Speeds up subsequent page loads, but delays info on TOS changes.';
 

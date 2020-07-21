@@ -7,4 +7,5 @@
 
 
 $meta['tos'] = array('string');
+$meta['usesession'] = array('onoff');
 

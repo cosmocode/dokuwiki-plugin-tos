@@ -6,4 +6,5 @@
  */
 
 $conf['tos']    = 'tos';
+$conf['usesession'] = 1;
 
