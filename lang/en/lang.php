@@ -5,7 +5,6 @@
  * @author Andreas Gohr <dokuwiki@cosmocode.de>
  */
 
-$lang['acceptneeded'] = 'You need to accept the Terms of Service before you can login';
 $lang['accept'] = 'I\'ve read and accept the Terms of Servive';
 $lang['nope'] = 'No, log me out';
 $lang['showdiff'] = 'Click to show the differences since you last accepted the TOS (%s).';
