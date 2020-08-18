@@ -40,6 +40,7 @@ class action_plugin_tos extends DokuWiki_Action_Plugin
         // if user accepted the TOCs right now, no further checks needed
         if ($INPUT->bool(self::FORMFIELD)) {
             $this->userTosState($user, true);
+            $event->data = 'redirect';
             return;
         }
 
