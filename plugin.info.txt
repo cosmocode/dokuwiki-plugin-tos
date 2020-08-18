@@ -1,7 +1,7 @@
 base   tos
 author Andreas Gohr
 email  dokuwiki@cosmocode.de
-date   2020-07-21
+date   2020-08-18
 name   tos plugin
 desc   Have users accept Terms of Service before logging in
 url    https://www.dokuwiki.org/plugin:tos
