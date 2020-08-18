@@ -16,9 +16,6 @@ class action_plugin_tos extends DokuWiki_Action_Plugin
      */
     public function register(Doku_Event_Handler $controller)
     {
-        #$controller->register_hook('AUTH_LOGIN_CHECK', 'AFTER', $this, 'handleLogin');
-        #$controller->register_hook('HTML_LOGINFORM_OUTPUT', 'BEFORE', $this, 'handleLoginForm');
-
         $controller->register_hook('ACTION_ACT_PREPROCESS', 'BEFORE', $this, 'checkTosAccept');
         $controller->register_hook('TPL_ACT_UNKNOWN', 'BEFORE', $this, 'showTos');
     }
@@ -100,7 +97,6 @@ class action_plugin_tos extends DokuWiki_Action_Plugin
      * Get the most recent, non-minor revision of the TOS page
      *
      * @return int
-     * @todo maybe cache in session
      */
     protected function newestTOS()
     {
@@ -151,7 +147,7 @@ class action_plugin_tos extends DokuWiki_Action_Plugin
      */
     protected function sessionState($set = 0)
     {
-        if (!$this->getConf('usesession')) return 0;
+        if (!$this->getConf('usesession')) return $set;
 
         if ($set) {
             session_start();
