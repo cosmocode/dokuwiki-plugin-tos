@@ -86,7 +86,7 @@ class action_plugin_tos extends DokuWiki_Action_Plugin
 
         echo '<ul class="tos-form">';
         echo '<li class="tos-nope"><a href="' . wl($ID,
-                ['do' => 'logout']) . '">' . $this->getLang('nope') . '</a></li>';
+                ['do' => 'logout', 'sectok'=>getSecurityToken()]) . '">' . $this->getLang('nope') . '</a></li>';
         echo '<li class="tos-accept"><a href="' . wl($ID,
                 [self::FORMFIELD => '1']) . '">' . $this->getLang('accept') . '</a></li>';
         echo '</ul>';
