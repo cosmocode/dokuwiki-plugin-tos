@@ -51,6 +51,7 @@ class action_plugin_tos extends DokuWiki_Action_Plugin
         if ($accepted >= $newest) return;
 
         $event->data = 'plugin_tos';
+        $event->preventDefault();
     }
 
     /**
